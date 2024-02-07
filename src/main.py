@@ -26,9 +26,16 @@ async def create_single_todo(todo: Todo) -> dict[str, str]:
     return {"message": "Todo has been added successfully."}
 
 
-# Update a to_do
+@app.put("/todos/{todo_id}")
+async def update_single_todo(todo_id: int, todo_item: Todo) -> dict[str, Todo | str]:
+    for todo in todos:
+        if todo.id == todo_id:
+            todo.id = todo_id
+            todo.item = todo_item.item
+            return {"todo": todo}
+    return {"message": "No todo found to update."}
 
-# Delete a to_do
+
 @app.delete("/todos/{todo_id}")
 async def delete_single_todo(todo_id: int) -> dict[str, str]:
     for todo in todos:

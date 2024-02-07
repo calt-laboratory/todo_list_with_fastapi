@@ -2,7 +2,7 @@
 name = "todo list with fastapi"
 version = "0.1.0"
 description = ""
-authors = ["Christoph Alt <email@com>"]
+authors = ["calt-laboratory"]
 readme = "README.md"
 
 [tool.poetry.dependencies]

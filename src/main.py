@@ -1,12 +1,28 @@
 from fastapi import FastAPI
 from models import Todo
 
+from database import metadata, engine, todos, database
+
+metadata.create_all(engine)
+
 app = FastAPI()
 
 
-todos: list[Todo] = []
+##### Lifecycle events #####
+
+@app.on_event("startup")
+async def startup():
+    """Connect to the database when the application starts."""
+    await database.connect()
 
 
+@app.on_event("shutdown")
+async def shutdown():
+    """Shutdown the database connection when the application stops."""
+    await database.disconnect()
+
+
+##### Routes #####
 @app.get("/todos")
 async def get_all_todos() -> dict[str, list[Todo]]:
     return {"todos": todos}

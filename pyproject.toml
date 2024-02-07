@@ -1,0 +1,51 @@
+[tool.poetry]
+name = "todo list with fastapi"
+version = "0.1.0"
+description = ""
+authors = ["Christoph Alt <email@com>"]
+readme = "README.md"
+
+[tool.poetry.dependencies]
+python = "3.12.0"
+fastapi = "0.109.2"
+uvicorn = "0.26.0"
+pydantic = "2.6.1"
+
+[tool.poetry.dev-dependencies]
+ruff = "0.2.1"
+mypy = "1.8.0"
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
+
+[tool.mypy]
+disallow_untyped_defs = true
+warn_return_any = false
+pretty = true
+
+[[tool.mypy.overrides]]
+module = [
+    "open3d",
+]
+ignore_missing_imports = true
+
+[tool.ruff]
+target-version = "py310"
+select = ["E", "F", "I", "W", "A", "RET", "SIM", "PLC", "PLE", "PLR", "PLW", "RUF"]
+fixable = ["F", "E", "I", "W", "A", "RET", "SIM", "PLC", "PLE", "PLR", "PLW", "RUF"]
+line-length = 120
+extend-exclude = [".pytest_cache"]
+show-fixes = true
+
+[tool.ruff.lint.isort]
+case-sensitive = true
+
+[tool.ruff.lint.mccabe]
+max-complexity = 10
+
+[tool.ruff.pycodestyle]
+max-doc-length = 120
+
+[tool.ruff.lint.flake8-annotations]
+ignore-fully-untyped = false

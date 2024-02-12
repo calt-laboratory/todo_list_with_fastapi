@@ -26,7 +26,7 @@ pretty = true
 
 [[tool.mypy.overrides]]
 module = [
-    "open3d",
+    "sqlalchemy",
 ]
 ignore_missing_imports = true
 

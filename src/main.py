@@ -1,31 +1,32 @@
+import uvicorn
+from database import database, engine, metadata, todos
+from databases.interfaces import Record
 from fastapi import FastAPI
 from models import Todo
-
-from database import metadata, engine, todos, database
 
 metadata.create_all(engine)
 
 app = FastAPI()
 
 
-##### Lifecycle events #####
-
+# Lifecycle events
 @app.on_event("startup")
-async def startup():
+async def startup() -> None:
     """Connect to the database when the application starts."""
     await database.connect()
 
 
 @app.on_event("shutdown")
-async def shutdown():
+async def shutdown() -> None:
     """Shutdown the database connection when the application stops."""
     await database.disconnect()
 
 
-##### Routes #####
-@app.get("/todos")
-async def get_all_todos() -> dict[str, list[Todo]]:
-    return {"todos": todos}
+# Routes
+@app.get("/todos", response_model=list[Todo])
+async def get_all_todos() -> list[Record]:
+    query = todos.select()
+    return await database.fetch_all(query)
 
 
 @app.get("/todos/{todo_id}")
@@ -59,3 +60,7 @@ async def delete_single_todo(todo_id: int) -> dict[str, str]:
             todos.remove(todo)
             return {"message": "Todo has been removed successfully."}
     return {"message": "Todo not found."}
+
+
+if __name__ == "__main__":
+    uvicorn.run(app, host="127.0.0.1", port=8000)

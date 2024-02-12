@@ -23,19 +23,19 @@ async def shutdown() -> None:
 
 
 # Routes
-@app.get("/todos", response_model=list[Todo])
+@app.get(path="/todos", response_model=list[Todo])
 async def get_all_todos() -> list[Record]:
     query = todo_table_schema.select()
     return await database.fetch_all(query)
 
 
-@app.get("/todos/{todo_id}", response_model=Todo)
+@app.get(path="/todos/{todo_id}", response_model=Todo)
 async def get_single_todo(todo_id: int) -> Record | None:
     query = f"SELECT * FROM todos WHERE id = {todo_id}"
     return await database.fetch_one(query)
 
 
-@app.post("/todos", response_model=Todo)
+@app.post(path="/todos", response_model=Todo)
 async def create_single_todo(todo: TodoIn) -> dict[str, str]:
     query = todo_table_schema.insert().values(item=todo.item, completed=todo.completed)
     last_record_id = await database.execute(query)
@@ -52,13 +52,12 @@ async def update_single_todo(todo_id: int, todo_item: Todo) -> dict[str, Todo | 
     return {"message": "No todo found to update."}
 
 
-@app.delete("/todos/{todo_id}")
-async def delete_single_todo(todo_id: int) -> dict[str, str]:
-    for todo in todo_table_schema:
-        if todo.id == todo_id:
-            todo_table_schema.remove(todo)
-            return {"message": "Todo has been removed successfully."}
-    return {"message": "Todo not found."}
+@app.delete(path="/todos/{todo_id}", response_model=list[Todo])
+async def delete_single_todo(todo_id: int) -> list[Record]:
+    query = f"DELETE FROM todos WHERE id = {todo_id}"
+    await database.execute(query)
+    new_query = todo_table_schema.select()
+    return await database.fetch_all(new_query)
 
 
 if __name__ == "__main__":

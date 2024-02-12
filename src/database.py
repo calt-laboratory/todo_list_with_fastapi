@@ -10,7 +10,7 @@ database = databases.Database(DATABASE_URL)
 metadata = sqlalchemy.MetaData()
 
 # Database table schema
-todos = sqlalchemy.Table(
+todo_table_schema = sqlalchemy.Table(
     "todos",
     metadata,
     sqlalchemy.Column("id", sqlalchemy.Integer, primary_key=True),

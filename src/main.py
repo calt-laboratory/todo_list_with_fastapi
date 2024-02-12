@@ -1,8 +1,8 @@
 import uvicorn
-from database import database, engine, metadata, todos
+from database import database, engine, metadata, todo_table_schema
 from databases.interfaces import Record
 from fastapi import FastAPI
-from models import Todo
+from models import Todo, TodoIn
 
 metadata.create_all(engine)
 
@@ -25,27 +25,28 @@ async def shutdown() -> None:
 # Routes
 @app.get("/todos", response_model=list[Todo])
 async def get_all_todos() -> list[Record]:
-    query = todos.select()
+    query = todo_table_schema.select()
     return await database.fetch_all(query)
 
 
 @app.get("/todos/{todo_id}")
 async def get_single_todo(todo_id: int) -> dict[str, Todo | str]:
-    for todo in todos:
+    for todo in todo_table_schema:
         if todo.id == todo_id:
             return {"todo": todo}
     return {"message": "Todo not found."}
 
 
-@app.post("/todos")
-async def create_single_todo(todo: Todo) -> dict[str, str]:
-    todos.append(todo)
-    return {"message": "Todo has been added successfully."}
+@app.post("/todos", response_model=Todo)
+async def create_single_todo(todo: TodoIn) -> dict[str, str]:
+    query = todo_table_schema.insert().values(item=todo.item, completed=todo.completed)
+    last_record_id = await database.execute(query)
+    return {**todo.dict(), "id": last_record_id}
 
 
 @app.put("/todos/{todo_id}")
 async def update_single_todo(todo_id: int, todo_item: Todo) -> dict[str, Todo | str]:
-    for todo in todos:
+    for todo in todo_table_schema:
         if todo.id == todo_id:
             todo.id = todo_id
             todo.item = todo_item.item
@@ -55,9 +56,9 @@ async def update_single_todo(todo_id: int, todo_item: Todo) -> dict[str, Todo | 
 
 @app.delete("/todos/{todo_id}")
 async def delete_single_todo(todo_id: int) -> dict[str, str]:
-    for todo in todos:
+    for todo in todo_table_schema:
         if todo.id == todo_id:
-            todos.remove(todo)
+            todo_table_schema.remove(todo)
             return {"message": "Todo has been removed successfully."}
     return {"message": "Todo not found."}
 

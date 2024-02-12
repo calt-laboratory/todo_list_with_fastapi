@@ -1,7 +1,7 @@
 import uvicorn
 from database import database, engine, metadata, todo_table_schema
 from databases.interfaces import Record
-from fastapi import FastAPI
+from fastapi import FastAPI, HTTPException
 from models import Todo, TodoIn
 
 metadata.create_all(engine)
@@ -34,26 +34,29 @@ async def get_all_todos() -> list[Record]:
 
 
 @app.get(path="/todos/{todo_id}", response_model=Todo)
-async def get_single_todo(todo_id: int) -> Record | None:
+async def get_single_todo_by_id(todo_id: int) -> Record | None:
     """
-    Get a single to-do from the database.
+    Get a single to-do by id from the database.
     :param todo_id: The id of the to-do to retrieve
     :return: to-do with the specified id
     """
     query = f"SELECT * FROM todos WHERE id = {todo_id}"
-    return await database.fetch_one(query)
+    todo = await database.fetch_one(query)
+    if todo is None:
+        raise HTTPException(status_code=404, detail=f"Todo with id {todo_id} not found")
+    return todo
 
 
 @app.post(path="/todos", response_model=Todo)
-async def create_single_todo(todo: TodoIn) -> dict[str, str]:
+async def create_single_todo(to_do: TodoIn) -> dict[str, str]:
     """
     Create a single to-do in the database.
-    :param todo: to-do item to create
+    :param to_do: to-do item to create
     :return: Created to-do item
     """
-    query = todo_table_schema.insert().values(item=todo.item, completed=todo.completed)
+    query = todo_table_schema.insert().values(item=to_do.item, completed=to_do.completed)
     last_record_id = await database.execute(query)
-    return {**todo.dict(), "id": last_record_id}
+    return {**to_do.dict(), "id": last_record_id}
 
 
 @app.put("/todos/{todo_id}", response_model=Todo)

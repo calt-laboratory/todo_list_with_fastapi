@@ -42,14 +42,12 @@ async def create_single_todo(todo: TodoIn) -> dict[str, str]:
     return {**todo.dict(), "id": last_record_id}
 
 
-@app.put("/todos/{todo_id}")
-async def update_single_todo(todo_id: int, todo_item: Todo) -> dict[str, Todo | str]:
-    for todo in todo_table_schema:
-        if todo.id == todo_id:
-            todo.id = todo_id
-            todo.item = todo_item.item
-            return {"todo": todo}
-    return {"message": "No todo found to update."}
+@app.put("/todos/{todo_id}", response_model=Todo)
+async def update_single_todo(todo_id: int, todo_item: TodoIn) -> Record | None:
+    query = f"UPDATE todos SET item = '{todo_item.item}', completed = {todo_item.completed} WHERE id = {todo_id}"
+    await database.execute(query)
+    new_query = f"SELECT * FROM todos WHERE id = {todo_id}"
+    return await database.fetch_one(new_query)
 
 
 @app.delete(path="/todos/{todo_id}", response_model=list[Todo])

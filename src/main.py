@@ -29,12 +29,10 @@ async def get_all_todos() -> list[Record]:
     return await database.fetch_all(query)
 
 
-@app.get("/todos/{todo_id}")
-async def get_single_todo(todo_id: int) -> dict[str, Todo | str]:
-    for todo in todo_table_schema:
-        if todo.id == todo_id:
-            return {"todo": todo}
-    return {"message": "Todo not found."}
+@app.get("/todos/{todo_id}", response_model=Todo)
+async def get_single_todo(todo_id: int) -> Record | None:
+    query = f"SELECT * FROM todos WHERE id = {todo_id}"
+    return await database.fetch_one(query)
 
 
 @app.post("/todos", response_model=Todo)

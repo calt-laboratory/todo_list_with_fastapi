@@ -6,7 +6,10 @@ from models import Todo, TodoIn
 
 metadata.create_all(engine)
 
-app = FastAPI()
+app = FastAPI(
+    title="To-Do List API",
+    description="A simple to-do list API",
+)
 
 
 # Lifecycle events

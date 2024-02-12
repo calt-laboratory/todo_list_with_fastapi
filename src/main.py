@@ -80,6 +80,11 @@ async def delete_single_todo(todo_id: int) -> list[Record]:
     :param todo_id: id of the to-do item to delete
     :return: List of remaining to-do items
     """
+    # Check if to-do with given todo_id exists
+    query_check = f"SELECT * FROM todos WHERE id = {todo_id}"
+    todo = await database.fetch_one(query_check)
+    if todo is None:
+        raise HTTPException(status_code=404, detail=f"Todo with id {todo_id} not found")
     query = f"DELETE FROM todos WHERE id = {todo_id}"
     await database.execute(query)
     new_query = todo_table_schema.select()

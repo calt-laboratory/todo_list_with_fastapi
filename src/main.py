@@ -67,7 +67,7 @@ async def create_single_todo(to_do: TodoIn) -> dict[str, str]:
     return {**to_do.dict(), "id": last_record_id}
 
 
-@app.put("/todos/{todo_id}", response_model=Todo)
+@app.put(path="/todos/{todo_id}", response_model=Todo)
 async def update_single_todo(todo_id: int, todo_item: TodoIn) -> Record | None:
     """
     Updates a single to-do in the database.
@@ -104,5 +104,9 @@ async def delete_single_todo(todo_id: int) -> list[Record]:
     return await database.fetch_all(new_query)
 
 
-if __name__ == "__main__":
+def main():
     uvicorn.run(app, host="127.0.0.1", port=8000)
+
+
+if __name__ == "__main__":
+    main()

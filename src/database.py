@@ -1,21 +1,24 @@
-import databases
-import sqlalchemy
+from databases import Database
+from sqlalchemy import create_engine, MetaData, Table, Column, Integer, String, Boolean
+from sqlalchemy.ext.declarative import declarative_base
 
 DATABASE_URL = "sqlite:///./test.db"
-database = databases.Database(DATABASE_URL)
+database = Database(DATABASE_URL)
 
 # Metadata contains definitions of tables and associated objects such as index, view, triggers, etc.
 # Hence, an object of MetaData class from SQLAlchemy is a collection of Table objects and their associated schema
 # constructs.
-metadata = sqlalchemy.MetaData()
+metadata = MetaData()
 
 # Database table schema
-todo_table_schema = sqlalchemy.Table(
+Base = declarative_base()
+
+todo_table_schema = Table(
     "todos",
     metadata,
-    sqlalchemy.Column("id", sqlalchemy.Integer, primary_key=True),
-    sqlalchemy.Column("item", sqlalchemy.String),
-    sqlalchemy.Column("completed", sqlalchemy.Boolean),
+    Column("id", Integer, primary_key=True),
+    Column("item", String),
+    Column("completed", Boolean),
 )
 
-engine = sqlalchemy.create_engine(DATABASE_URL, connect_args={"check_same_thread": False})
+engine = create_engine(DATABASE_URL, connect_args={"check_same_thread": False})

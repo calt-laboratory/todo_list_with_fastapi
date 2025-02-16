@@ -3,6 +3,7 @@ from database import database, engine, metadata, todo_table_schema
 from databases.interfaces import Record
 from fastapi import FastAPI, HTTPException
 from models import Todo, TodoIn
+from src.engine import init_db
 
 metadata.create_all(engine)
 
@@ -16,7 +17,7 @@ app = FastAPI(
 @app.on_event("startup")
 async def startup() -> None:
     """Connect to the database when the application starts."""
-    await database.connect()
+    await init_db()
 
 
 @app.on_event("shutdown")

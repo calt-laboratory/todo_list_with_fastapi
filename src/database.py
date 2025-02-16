@@ -13,12 +13,13 @@ metadata = MetaData()
 # Database table schema
 Base = declarative_base()
 
-todo_table_schema = Table(
-    "todos",
-    metadata,
-    Column("id", Integer, primary_key=True),
-    Column("item", String),
-    Column("completed", Boolean),
-)
+
+class DBTodo(Base):
+    __tablename__ = "todos"
+
+    id = Column(Integer, primary_key=True)
+    item = Column(String)
+    completed = Column(Boolean)
+
 
 engine = create_engine(DATABASE_URL, connect_args={"check_same_thread": False})
